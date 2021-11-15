@@ -6,8 +6,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["alekseyl"]
   spec.email         = ["leshchuk@gmail.com"]
 
-  spec.summary       = %q{This a small set of stub extensions to Object interface.}
-  spec.description   = %q{This a small set of stub extensions to Object interface. There will be stub_must, stub_must_not, stub_if_def, stub_any_ar methods on it }
+  spec.summary       = %q{Ultimate collection of stub methods for ruby test suits. Lets stub! }
+  spec.description   = %q{This a ultimate set of stub extensions to Object interface. Suggest any reasonable subbing and I'll try to merge it. It will start with: stub_must, stub_must_not, stub_if_def, stub_any_record methods on it }
   spec.homepage      = "https://github.com/alekseyl/stubberry"
   spec.license       = "MIT"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0")
@@ -26,4 +26,13 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+
+  spec.required_ruby_version = '>= 2.4'
+  spec.add_development_dependency "activerecord", ">= 6.1"
+
+  spec.add_development_dependency "bundler", ">= 1"
+  spec.add_development_dependency "rake", ">= 12.3.3"
+  spec.add_development_dependency "minitest", "~> 5.0"
+
+  spec.add_development_dependency "ruby_jard"
 end
