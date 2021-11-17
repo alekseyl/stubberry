@@ -1,3 +1,12 @@
+# this module provide two methods for active record classes
+# to easily stub any record attributes and methods disregarding the way
+# record was obtained inside the yielding block, you just need an id.
+#
+# i.e. alternative way of dealing with any record with id could be stub of
+# the specific method like where or find with a given set of params e.t.c.
+# that's a very error prone approach, with stub_orm_* methods we
+# do not care about the way object was obtained as long as after_find
+# callback was executed
 module Stubberry::ActiveRecord
   extend ActiveSupport::Concern
 
@@ -9,6 +18,10 @@ module Stubberry::ActiveRecord
   end
 
   module ClassMethods
+
+    # This method could be used whenever there is a need for stubbing
+    # the exact ActiveRecord object attributes inside some execution flow
+    # __without__ underlying record change
     def stub_orm_attr(id, obj_or_attributes )
       stub(:extend_any, -> (obj) {
         return unless obj.id == id && obj.is_a?( self )
@@ -18,6 +31,9 @@ module Stubberry::ActiveRecord
       end
     end
 
+    # This method could be used whenever there is a need for stubbing
+    # the specific Active Record object's methods inside some flow piece
+    # with ANY way of object retrieval, making
     def stub_orm_method(id, method, val_or_callable, *block_args  )
       stub(:extend_any, -> (obj) {
         return unless obj.id == id && obj.is_a?( self )
@@ -65,4 +81,4 @@ module Stubberry::ActiveRecord
 
     def extend_any(_obj); :do_nothing end
   end
-end if defined?(ActiveRecord)
+end if defined?(ActiveSupport::Concern)
