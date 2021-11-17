@@ -1,8 +1,8 @@
 # Stubberry
 Pay attention it has 2Bs and 2Rs in naming :)
 
-This gem is planned to be a ultimate sweet collection of stubbing methods for all kinds of testing.
-Feel free to provide any enrichment suggestions.
+This gem is planned to be an ultimate sweet collection of stubbing methods for any kinds of testing.
+Any new cool stubbing suggestions are welcome.
 
 ## Installation
 
