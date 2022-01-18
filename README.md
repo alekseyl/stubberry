@@ -1,8 +1,8 @@
 # Stubberry
 Pay attention it has 2Bs and 2Rs in naming :)
 
-This gem is planned to be a ultimate sweet collection of stubbing methods for all kinds of testing.
-Feel free to provide any enrichment suggestions.
+This gem is planned to be an ultimate sweet collection of stubbing methods for any kinds of testing.
+Any new cool stubbing suggestions are welcome.
 
 ## Installation
 
@@ -37,13 +37,12 @@ Set of stubbing methods added to an Object class hence available for any class o
 
 ```ruby
 
-# a copy/paste of an Objects stub method enriched with
-# raise error functionality whenever stubbed method wasn't called
 # stub_must( name, val_or_callable, *block_args )
+# raise error functionality whenever stubbed method wasn't called
 
-test 'check call params with a call must happened' do 
+test 'check mehtod "run" params and execution' do 
   class_or_obj.stub_must(:run, -> ( param ) {
-    # Now you can be sure: either you have an expected param, OR 
+    # Now you can be sure that execution was here and either you have an expected param, OR 
     # if call didn't happened you will see a StandardError raised 
     assert_equal( param, 1 )
   } ) { class_or_obj.run(1) }
@@ -55,15 +54,19 @@ Rem: I know about Mock object, but I don't like it. You may consider approach wi
 But I do like an error to be aligned to the check, running mock.verify some place after check did happened, feels unnatural and uncomfortable to me
 
 ```ruby
-# the reverse method of stub_must -- will raise an issue whenever method
-# was called inside a stubbing block, ensures that flow didn't reach given method 
+
 # stub_must_not( name, message = nil ) 
+# the reverse method of stub_must -- will raise an issue whenever method
+# **was** called inside a stubbing block, ensures that flow didn't reach given method 
 test 'call must not happened' do
+  # nothing raised
   class_or_obj.stub_must_not(:run) { class_or_obj.call(1) }
+  # StandardError will be raised: 
+  class_or_obj.stub_must_not(:run) { class_or_obj.run(1) }
 end
 
-# just for fun multiple stub_must in one call 
 # stub_must_all( name_to_var_or_callable, &block )
+# just for fun multiple stub_must in one call, will raise one error for any amount of missing method's calls
 test 'all calls should happened' do
   class_or_obj.stub_must_all(
     run: true,
@@ -74,10 +77,11 @@ test 'all calls should happened' do
   end
 end
 
-# stub only if respond_to otherwise just execute block. 
-# It's a really rare case, I used only once for incompatible gems versions test 
-# 
 # stub_if_def(name, val_or_callable, *block_args, &block)
+# stub only if method present on the object, otherwise just execute block. 
+# It's a really rare case, I used only once for incompatible gems versions test. 
+# When I needed to check that the execution flow can survive missing methods. 
+#
 test 'all calls should happened' do
   class_or_obj.stub_if_def( :not_def, -> (param) { assert_equal(param, :param) } ) do
     # when there is nothing to stub, just yield
