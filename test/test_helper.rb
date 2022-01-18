@@ -1,5 +1,5 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
-require 'active_support'
+require 'active_record'
 require "stubberry"
 
 require "minitest/autorun"

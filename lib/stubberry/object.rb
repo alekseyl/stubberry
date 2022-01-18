@@ -1,30 +1,22 @@
 module Stubberry::Object
-  # a copy/paste of an Objects stub method enriched with
-  # raise error functionality whenever stubbed method wasn't called
+  # this is an enrichment of an original stub method from the minitest/mock
   def stub_must( name, val_or_callable, *block_args )
-    new_name = "__minitest_stub__#{name}"
-    call_happened_method_name = "__#{name}_call_happened"
+    method_new_name = "__minitest_stub__#{name}"
 
-    metaclass = class << self; self; end
+    singleton_has_stubbing_method = singleton_methods.map(&:to_s).include?( name.to_s )
 
-    if respond_to? name and not methods.map(&:to_s).include? name.to_s then
-      metaclass.send :define_method, name do |*args|
-        super(*args)
-      end
+    if respond_to?( name ) && !methods.map(&:to_s).include?( name.to_s )
+      singleton_class.define_method( name ) { |*args, **kargs, &block| super(*args, **kargs, &block) }
     end
 
-    metaclass.send :alias_method, new_name, name
+    singleton_class.alias_method( method_new_name, name )
 
-    # this will make a closure without spoiling class with any instance vars and so
     call_happened = []
-    metaclass.send :define_method, call_happened_method_name do
+
+    singleton_class.define_method( name ) do |*args, &blk|
       call_happened << true
-    end
 
-    metaclass.send :define_method, name do |*args, &blk|
-      __send__(call_happened_method_name)
-
-      if val_or_callable.respond_to? :call then
+      if val_or_callable.respond_to?( :call )
         val_or_callable.call(*args, &blk)
       else
         blk.call(*block_args) if blk
@@ -33,34 +25,31 @@ module Stubberry::Object
     end
 
     (yield self).tap do
-      raise  "#{name} wasn't called" if call_happened.length == 0
+      raise "#{name} wasn't called" if call_happened.length == 0
     end
   ensure
-    metaclass.send :undef_method, name
-    metaclass.send :alias_method, name, new_name
-    metaclass.send :undef_method, new_name
-    metaclass.send :undef_method, call_happened_method_name
+    singleton_class.__stbr_clear_singleton_class( name, method_new_name, singleton_has_stubbing_method )
   end
 
   # the reverse method of stub_must -- will raise an issue whenever method
   # was called inside a stubbing block
   def stub_must_not( name, message = nil )
-    new_name = "__minitest_stub__#{name}"
+    method_new_name = "__minitest_stub__#{name}"
+    singleton_has_stubbing_method = singleton_methods.map(&:to_s).include?( name.to_s )
 
     metaclass = class << self; self; end
 
     if respond_to?(name) && !methods.map(&:to_s).include?( name.to_s )
-      metaclass.define_method( name ) { | *args | super(*args) }
+      metaclass.define_method( name ) { | *args, **kargs, &block | super(*args, **kargs, &block) }
     end
 
-    metaclass.alias_method( new_name, name )
+    metaclass.alias_method( method_new_name, name )
+
     metaclass.define_method( name ) { |*| raise message || "#{name} was called!" }
 
     yield self
   ensure
-    metaclass.undef_method( name )
-    metaclass.alias_method( name, new_name )
-    metaclass.undef_method( new_name )
+    metaclass.__stbr_clear_singleton_class( name, method_new_name, singleton_has_stubbing_method )
   end
 
   # just for fun multiple stub_must in one call
@@ -78,6 +67,13 @@ module Stubberry::Object
   def stub_must_if_def(name, val_or_callable, *block_args, &block)
     # stub only if respond otherwise just execute
     respond_to?( name ) ? stub_must(name, val_or_callable, *block_args, &block) : yield
+  end
+
+  def __stbr_clear_singleton_class( name, new_name, had_method_before)
+    raise Stubberry::Error.new('This is a singleton_class methods only!') unless singleton_class?
+    remove_method( name )
+    alias_method( name, new_name ) if had_method_before
+    remove_method( new_name )
   end
 end
 

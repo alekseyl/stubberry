@@ -9,7 +9,13 @@ Feel free to provide any enrichment suggestions.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'stubberry'
+# stubberry extends Object methods, so it should not be required in production
+group :test, :development do
+    gem 'stubberry'
+end
+
+#OR 
+gem 'stubberry', group: [:test, :development]
 ```
 
 And then execute:
@@ -108,6 +114,32 @@ test 'object with a given id got method stubbed' do
   } ) do
     User.first.comments.where(id: 1).each{ _1.join( Comment.find(2) ) }
   end
+end
+```
+
+### Stubberry::Assertions
+
+Control flow without interference, you want to be sure that method called and stubbing either to verbose or problematic. 
+
+```ruby
+
+class YouTest < Minitest::TestCase
+  
+    include Stubberry::Assertions
+
+    test 'save called without object interference' do 
+      cmnt = Comment.new
+      assert_difference( -> { Comment.count } ) do 
+          assert_method_called( cmnt, :save ) { cmnt.save }
+      end
+    end
+    
+    test 'gently check method params' do
+      cmnt = Comment.new
+      assert_method_called( cmnt, :save, -> (options) {
+        assert_equal( options, {validate: false} )
+      } ) { cmnt.save(validate: false) }
+    end
 end
 ```
 

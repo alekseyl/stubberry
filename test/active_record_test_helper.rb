@@ -4,7 +4,6 @@ ActiveRecord::Base.establish_connection(
   database: ':memory:'
 )
 
-
 ActiveRecord::Migration.create_table(:users) do |t|
   t.string :name
   t.string :last_name
