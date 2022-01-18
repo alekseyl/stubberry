@@ -1,4 +1,4 @@
-# 0.2.1
+# 0.2.0
 * new module with assertion methods added 
 * assert_method_called added, this is a flow assertion, you can check the params, and you can check that method was called inside the block, 
   without stubbing objects and interfering with the original flow 
