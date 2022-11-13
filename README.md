@@ -40,7 +40,7 @@ Set of stubbing methods added to an Object class hence available for any class o
 # stub_must( name, val_or_callable, *block_args )
 # raise error functionality whenever stubbed method wasn't called
 
-test 'check mehtod "run" params and execution' do 
+test 'check method "run" params and execution' do 
   class_or_obj.stub_must(:run, -> ( param ) {
     # Now you can be sure that execution was here and either you have an expected param, OR 
     # if call didn't happened you will see a StandardError raised 
